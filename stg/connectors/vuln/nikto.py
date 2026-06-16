@@ -42,9 +42,15 @@ class NiktoConnector(CommandConnector):
         return cmd
 
     def collect_output(self, result: shell.CommandResult, workdir: Path) -> str:
-        out = workdir / "nikto.json"
-        if out.exists():
-            return out.read_text(encoding="utf-8", errors="replace")
+        # O Nikto acrescenta a extensao do formato ao -output, gerando
+        # "nikto.json.json". Procuramos qualquer arquivo que comece com o nome.
+        candidates = sorted(
+            workdir.glob("nikto.json*"), key=lambda p: p.stat().st_size, reverse=True
+        )
+        for candidate in candidates:
+            text = candidate.read_text(encoding="utf-8", errors="replace")
+            if text.strip():
+                return text
         return result.stdout
 
     def parse(self, raw: str, target: Target) -> list[Finding]:
