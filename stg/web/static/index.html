@@ -10,6 +10,11 @@
     --text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;
     --critical:#dc2626;--high:#ea580c;--medium:#d97706;--low:#2563eb;--info:#475569;
   }
+  :root[data-theme="light"]{
+    --bg:#f1f5f9;--card:#ffffff;--card2:#f8fafc;--line:#e2e8f0;
+    --text:#0f172a;--muted:#64748b;--accent:#0284c7;
+  }
+  html{transition:background .2s,color .2s}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
   .wrap{max-width:1000px;margin:0 auto;padding:28px 20px 60px}
@@ -47,7 +52,7 @@
   .f-title{font-size:.92rem}.f-desc{font-size:.8rem;color:var(--muted)}
   .links a{color:var(--accent);font-size:.82rem;margin-right:14px;text-decoration:none}
   .empty{color:var(--muted);font-style:italic;padding:14px 4px}
-  .spin{display:inline-block;width:14px;height:14px;border:2px solid #03212f;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
   @keyframes s{to{transform:rotate(360deg)}}
   .gtoggle{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;font-size:.85rem}
   .phase{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px}
@@ -58,7 +63,7 @@
   .phase .tools{font-size:.74rem;color:var(--accent);margin-top:7px}
   .tag{font-size:.62rem;padding:2px 8px;border-radius:999px;font-weight:700;text-transform:uppercase}
   .tag.red{background:#7f1d1d;color:#fecaca}.tag.blue{background:#1e3a8a;color:#bfdbfe}
-  .tip{color:#7dd3fc;display:block;margin-top:5px}
+  .tip{color:var(--accent);display:block;margin-top:5px}
   .nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--line)}
   .nav-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-weight:400;font-size:.9rem;padding:9px 16px;border-radius:0;cursor:pointer}
   .nav-btn.on{color:var(--text);border-bottom-color:var(--accent)}
@@ -68,17 +73,33 @@
   .tag2{font-size:.64rem;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
   .tag2.warn{background:#7c2d12;color:#fed7aa;border-color:transparent}
   .tag2.ok{background:#064e3b;color:#6ee7b7;border-color:transparent}
+  #themeBtn{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;font-size:1rem;padding:5px 10px;line-height:1;border-radius:999px}
+  #toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:50;max-width:300px}
+  .toast{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;padding:10px 14px;font-size:.85rem;animation:slidein .25s ease}
+  .toast.ok{border-left-color:#10b981}.toast.err{border-left-color:#ef4444}
+  @keyframes slidein{from{transform:translateY(10px);opacity:0}to{transform:none;opacity:1}}
   @media(max-width:680px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){
+    .wrap{padding:18px 14px 50px}
+    header{flex-direction:column;align-items:flex-start}
+    .nav{overflow-x:auto}
+    .metrics{grid-template-columns:repeat(2,1fr)}
+    .row{flex-direction:column;align-items:stretch}
+    .row button{width:100%}
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="logo">🛡️</div>
+      <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#bae6fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
       <div><h1>STG · Security Toolkit Gateway</h1><p>Painel de operações de segurança</p></div>
     </div>
-    <div id="scope" class="pill">escopo: carregando…</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="scope" class="pill">escopo: carregando…</div>
+      <button id="themeBtn" title="Alternar tema claro/escuro" aria-label="Alternar tema">☀️</button>
+    </div>
   </header>
 
   <nav class="nav">
@@ -125,6 +146,7 @@
   <section id="view-history" style="display:none"></section>
   <section id="view-audit" style="display:none"></section>
 </div>
+<div id="toasts"></div>
 
 <script>
 const SEV = ["critical","high","medium","low","info"];
@@ -193,11 +215,16 @@ async function runScan(){
   });
   const force = document.getElementById("force").checked;
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Executando…';
+  document.getElementById("output").innerHTML = '<div class="card" style="color:var(--accent)"><span class="spin"></span> <span style="color:var(--text)">Executando <strong>'+esc(connector)+'</strong> em <strong>'+esc(target)+'</strong>…</span></div>';
   try{
     const res = await api("/api/scan", {method:"POST", headers:{"Content-Type":"application/json"},
       body: JSON.stringify({connector, target, options, force})});
     render(res);
-  }catch(e){ document.getElementById("output").innerHTML = '<div class="card"><span class="status st-failed">ERRO</span> '+e.message+'</div>'; }
+    if(res.status==="success") toast("Scan concluído — "+res.findings.length+" achado(s).","ok");
+    else if(res.status==="unauthorized") toast("Bloqueado: alvo fora do escopo.","err");
+    else if(res.status==="failed") toast("Falhou: "+(res.error||"erro"),"err");
+    else toast("Status: "+res.status,"");
+  }catch(e){ document.getElementById("output").innerHTML = '<div class="card"><span class="status st-failed">ERRO</span> '+esc(e.message)+'</div>'; toast("Erro: "+e.message,"err"); }
   finally{ btn.disabled = false; btn.textContent = "Executar"; }
 }
 
@@ -227,6 +254,19 @@ function render(res){
 }
 
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function applyTheme(t){
+  document.documentElement.setAttribute("data-theme", t);
+  try{ localStorage.setItem("stg-theme", t); }catch(e){}
+  document.getElementById("themeBtn").textContent = t==="dark" ? "☀️" : "🌙";
+}
+function toast(msg, kind){
+  const el = document.createElement("div");
+  el.className = "toast" + (kind ? " "+kind : "");
+  el.textContent = msg;
+  document.getElementById("toasts").appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; setTimeout(()=>el.remove(), 300); }, 4000);
+}
 
 async function loadGuide(){
   try{
@@ -290,6 +330,9 @@ async function loadAudit(){
   document.getElementById("run").onclick = runScan;
   document.getElementById("guideToggle").onclick = ()=>{ const el=document.getElementById("guide"); el.style.display = el.style.display==="none"?"block":"none"; };
   document.querySelectorAll(".nav-btn").forEach(b=> b.onclick=()=>switchView(b.dataset.view));
+  let savedTheme = "dark"; try{ savedTheme = localStorage.getItem("stg-theme") || "dark"; }catch(e){}
+  applyTheme(savedTheme);
+  document.getElementById("themeBtn").onclick = ()=> applyTheme(document.documentElement.getAttribute("data-theme")==="dark" ? "light" : "dark");
   await loadScope();
   await loadGuide();
   CONNECTORS = await api("/api/connectors");
