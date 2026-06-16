@@ -49,6 +49,16 @@
   .empty{color:var(--muted);font-style:italic;padding:14px 4px}
   .spin{display:inline-block;width:14px;height:14px;border:2px solid #03212f;border-top-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
   @keyframes s{to{transform:rotate(360deg)}}
+  .gtoggle{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;font-size:.85rem}
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px}
+  .phase .num{width:30px;height:30px;border-radius:8px;background:#0c4a6e;color:#bae6fd;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0}
+  .phase h3{margin:0 0 5px;font-size:.96rem;display:flex;align-items:center;gap:9px}
+  .phase p{margin:3px 0;font-size:.82rem;color:var(--muted)}
+  .phase p b{color:var(--text);font-weight:600}
+  .phase .tools{font-size:.74rem;color:var(--accent);margin-top:7px}
+  .tag{font-size:.62rem;padding:2px 8px;border-radius:999px;font-weight:700;text-transform:uppercase}
+  .tag.red{background:#7f1d1d;color:#fecaca}.tag.blue{background:#1e3a8a;color:#bfdbfe}
+  .tip{color:#7dd3fc;display:block;margin-top:5px}
   @media(max-width:680px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -63,6 +73,11 @@
   </header>
 
   <div class="chips" id="chips"></div>
+
+  <div style="margin-bottom:16px">
+    <button class="gtoggle" id="guideToggle">📚 Metodologia: recon → vuln → web → senhas → rede → SIEM</button>
+    <div id="guide" style="display:none;margin-top:12px"></div>
+  </div>
 
   <div class="card">
     <div class="grid">
@@ -140,7 +155,9 @@ function onConnectorChange(){
   const types = c.target_types.length ? c.target_types.join(", ") : "qualquer";
   let txt = c.description + "  ·  alvos: " + types;
   if(!c.available) txt += "  ·  ⚠ " + (c.reason||"indisponível");
-  document.getElementById("desc").innerHTML = "<span>ℹ️</span><span>"+txt+"</span>";
+  let html = "<span>ℹ️</span><span>"+esc(txt);
+  if(c.tip) html += '<span class="tip">💡 '+esc(c.tip)+'</span>';
+  document.getElementById("desc").innerHTML = html+"</span>";
 }
 
 async function runScan(){
@@ -191,10 +208,26 @@ function render(res){
 
 function esc(s){ return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
+async function loadGuide(){
+  try{
+    const data = await api("/api/guide");
+    document.getElementById("guide").innerHTML = data.map(g=>`
+      <div class="phase"><div class="num">${g.ordem}</div><div>
+        <h3>${esc(g.titulo)} <span class="tag ${String(g.time).indexOf('Red')>=0?'red':'blue'}">${esc(g.time)}</span></h3>
+        <p>${esc(g.resumo)}</p>
+        <p><b>Objetivo:</b> ${esc(g.objetivo)}</p>
+        <p><b>Como ler:</b> ${esc(g.como_ler)}</p>
+        <div class="tools">${g.ferramentas.map(esc).join(" · ")}</div>
+      </div></div>`).join("");
+  }catch(e){}
+}
+
 (async function init(){
   document.getElementById("connector").onchange = onConnectorChange;
   document.getElementById("run").onclick = runScan;
+  document.getElementById("guideToggle").onclick = ()=>{ const el=document.getElementById("guide"); el.style.display = el.style.display==="none"?"block":"none"; };
   await loadScope();
+  await loadGuide();
   CONNECTORS = await api("/api/connectors");
   buildChips(); fillConnectors();
 })();

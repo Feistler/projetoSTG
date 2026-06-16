@@ -25,6 +25,7 @@ from stg.core.models import ScanResult
 from stg.core.registry import get_registry
 from stg.core.runner import Runner
 from stg.reporting import render_report
+from stg.web.content import CATEGORY_GUIDE, TOOL_TIPS
 
 STATIC_DIR = Path(__file__).parent / "static"
 _MEDIA = {"html": "text/html", "md": "text/markdown", "json": "application/json"}
@@ -65,8 +66,27 @@ def list_connectors() -> list[dict[str, Any]]:
                     "target_types": [t.value for t in cls.target_types],
                     "requires_binaries": cls.requires_binaries,
                     "requires_api_keys": cls.requires_api_keys,
+                    "tip": TOOL_TIPS.get(cls.name, ""),
                 }
             )
+    return out
+
+
+@app.get("/api/guide")
+def guide() -> list[dict[str, Any]]:
+    """Metodologia didatica: as 6 fases em ordem, com as ferramentas de cada uma."""
+    grouped = get_registry().by_category()
+    out: list[dict[str, Any]] = []
+    for category, classes in grouped.items():
+        info = CATEGORY_GUIDE.get(category.value, {})
+        out.append(
+            {
+                **info,
+                "categoria": category.value,
+                "ferramentas": [cls.tool for cls in classes],
+            }
+        )
+    out.sort(key=lambda c: c.get("ordem", 99))
     return out
 
 

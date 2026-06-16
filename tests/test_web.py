@@ -44,3 +44,19 @@ def test_scan_passive_connector_returns_result():
 
 def test_report_unknown_id_404():
     assert client.get("/api/report/inexistente").status_code == 404
+
+
+def test_guide_returns_six_ordered_phases():
+    resp = client.get("/api/guide")
+    assert resp.status_code == 200
+    phases = resp.json()
+    assert len(phases) == 6
+    assert [p["ordem"] for p in phases] == [1, 2, 3, 4, 5, 6]
+    assert phases[0]["categoria"] == "reconhecimento"
+    assert phases[0]["ferramentas"]
+
+
+def test_connectors_include_tip():
+    data = client.get("/api/connectors").json()
+    nmap = next(c for c in data if c["name"] == "nmap")
+    assert nmap["tip"]
