@@ -60,3 +60,12 @@ def test_connectors_include_tip():
     data = client.get("/api/connectors").json()
     nmap = next(c for c in data if c["name"] == "nmap")
     assert nmap["tip"]
+
+
+def test_history_and_audit_endpoints():
+    # um scan passivo popula o historico e a trilha de auditoria
+    client.post("/api/scan", json={"connector": "hibp", "target": "x@y.com"})
+    hist = client.get("/api/history")
+    assert hist.status_code == 200 and isinstance(hist.json(), list)
+    aud = client.get("/api/audit")
+    assert aud.status_code == 200 and isinstance(aud.json(), list)

@@ -59,6 +59,15 @@
   .tag{font-size:.62rem;padding:2px 8px;border-radius:999px;font-weight:700;text-transform:uppercase}
   .tag.red{background:#7f1d1d;color:#fecaca}.tag.blue{background:#1e3a8a;color:#bfdbfe}
   .tip{color:#7dd3fc;display:block;margin-top:5px}
+  .nav{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+  .nav-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);font-weight:400;font-size:.9rem;padding:9px 16px;border-radius:0;cursor:pointer}
+  .nav-btn.on{color:var(--text);border-bottom-color:var(--accent)}
+  .hrow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-top:1px solid var(--line);font-size:.86rem}
+  .hrow .meta{color:var(--muted);font-size:.77rem}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+  .tag2{font-size:.64rem;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+  .tag2.warn{background:#7c2d12;color:#fed7aa;border-color:transparent}
+  .tag2.ok{background:#064e3b;color:#6ee7b7;border-color:transparent}
   @media(max-width:680px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
@@ -72,6 +81,13 @@
     <div id="scope" class="pill">escopo: carregando…</div>
   </header>
 
+  <nav class="nav">
+    <button class="nav-btn on" data-view="operar">Operar</button>
+    <button class="nav-btn" data-view="history">Histórico</button>
+    <button class="nav-btn" data-view="audit">Auditoria</button>
+  </nav>
+
+  <section id="view-operar">
   <div class="chips" id="chips"></div>
 
   <div style="margin-bottom:16px">
@@ -104,6 +120,10 @@
   </div>
 
   <div id="output"></div>
+  </section>
+
+  <section id="view-history" style="display:none"></section>
+  <section id="view-audit" style="display:none"></section>
 </div>
 
 <script>
@@ -222,10 +242,54 @@ async function loadGuide(){
   }catch(e){}
 }
 
+function statusColor(s){ return ({success:"#10b981",failed:"#ef4444",unavailable:"#64748b",unauthorized:"#f97316",skipped:"#64748b",partial:"#d97706"})[s]||"#64748b"; }
+function fmtTime(iso){ if(!iso) return ""; try{ return new Date(iso).toLocaleString(); }catch(e){ return iso; } }
+
+function switchView(name){
+  ["operar","history","audit"].forEach(v=>{ document.getElementById("view-"+v).style.display = v===name?"block":"none"; });
+  document.querySelectorAll(".nav-btn").forEach(b=> b.classList.toggle("on", b.dataset.view===name));
+  if(name==="history") loadHistory();
+  if(name==="audit") loadAudit();
+}
+
+async function loadHistory(){
+  const v = document.getElementById("view-history");
+  try{
+    const data = await api("/api/history");
+    if(!data.length){ v.innerHTML='<div class="empty">Nenhum scan nesta sessão ainda — rode um em “Operar”.</div>'; return; }
+    v.innerHTML = data.map(h=>`<div class="hrow"><span class="dot" style="background:${statusColor(h.status)}"></span>
+      <div style="flex:1"><strong>${esc(h.connector)}</strong> <span class="meta">→ ${esc(h.target)}</span>
+      <div class="meta">${h.total} achado(s) · ${esc(h.status)} · ${fmtTime(h.finished_at)}</div></div>
+      <div class="links"><a href="/api/report/${h.id}?format=html" target="_blank">HTML</a><a href="/api/report/${h.id}?format=json" target="_blank">JSON</a></div></div>`).join("");
+  }catch(e){ v.innerHTML='<div class="empty">Erro ao carregar histórico.</div>'; }
+}
+
+async function loadAudit(){
+  const v = document.getElementById("view-audit");
+  try{
+    const data = await api("/api/audit?limit=150");
+    if(!data.length){ v.innerHTML='<div class="empty">Trilha de auditoria vazia.</div>'; return; }
+    v.innerHTML = '<div class="meta" style="margin-bottom:10px">'+data.length+' evento(s) · mais recentes primeiro</div>' + data.map(a=>{
+      const blocked = a.event==="blocked";
+      const color = blocked ? "#ef4444" : statusColor(a.status);
+      const tags = [];
+      if(blocked) tags.push('<span class="tag2 warn">bloqueado</span>');
+      if(a.forced) tags.push('<span class="tag2 warn">forçado</span>');
+      if(a.authorized===false && !blocked) tags.push('<span class="tag2 warn">fora do escopo</span>');
+      if(a.authorized===true) tags.push('<span class="tag2 ok">autorizado</span>');
+      return '<div class="hrow"><span class="dot" style="background:'+color+'"></span>'
+        +'<div style="flex:1"><strong>'+esc(a.connector||a.event||"")+'</strong> <span class="meta">→ '+esc(a.target||"")+'</span>'
+        +'<div class="meta">'+fmtTime(a.timestamp)+' · '+esc(a.user||"")+(a.status?(" · "+esc(a.status)):"")+'</div></div>'
+        +'<div style="display:flex;gap:5px">'+tags.join("")+'</div></div>';
+    }).join("");
+  }catch(e){ v.innerHTML='<div class="empty">Erro ao carregar auditoria.</div>'; }
+}
+
 (async function init(){
   document.getElementById("connector").onchange = onConnectorChange;
   document.getElementById("run").onclick = runScan;
   document.getElementById("guideToggle").onclick = ()=>{ const el=document.getElementById("guide"); el.style.display = el.style.display==="none"?"block":"none"; };
+  document.querySelectorAll(".nav-btn").forEach(b=> b.onclick=()=>switchView(b.dataset.view));
   await loadScope();
   await loadGuide();
   CONNECTORS = await api("/api/connectors");

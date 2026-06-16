@@ -10,6 +10,7 @@ Endpoints (todos reaproveitam o nucleo):
 
 from __future__ import annotations
 
+import json
 import uuid
 from pathlib import Path
 from typing import Any
@@ -122,6 +123,42 @@ def report(rid: str, format: str = "html") -> Response:
     if format not in _MEDIA:
         raise HTTPException(status_code=400, detail="formato invalido (html|md|json)")
     return Response(render_report([result], format), media_type=_MEDIA[format])
+
+
+@app.get("/api/history")
+def history() -> list[dict[str, Any]]:
+    """Scans desta sessao (em memoria), com contagem por severidade e link de relatorio."""
+    out: list[dict[str, Any]] = []
+    for rid, res in reversed(list(_results.items())):
+        out.append(
+            {
+                "id": rid,
+                "connector": res.connector,
+                "category": res.category.value,
+                "target": res.target,
+                "status": res.status.value,
+                "total": len(res.findings),
+                "counts": res.severity_counts(),
+                "finished_at": res.finished_at.isoformat() if res.finished_at else None,
+            }
+        )
+    return out
+
+
+@app.get("/api/audit")
+def audit(limit: int = 150) -> list[dict[str, Any]]:
+    """Trilha de auditoria persistida (audit.jsonl), mais recentes primeiro."""
+    path = settings.audit_path
+    if not path.exists():
+        return []
+    entries: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines()[-limit:]:
+        try:
+            entries.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    entries.reverse()
+    return entries
 
 
 def run() -> None:
