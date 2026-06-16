@@ -38,8 +38,8 @@ integrations = [
 stg = "stg.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/adauam/projetoSTG"
-Repository = "https://github.com/adauam/projetoSTG"
+Homepage = "https://github.com/Feistler/projetoSTG"
+Repository = "https://github.com/Feistler/projetoSTG"
 
 [tool.setuptools.packages.find]
 include = ["stg*"]

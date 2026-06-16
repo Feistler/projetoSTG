@@ -194,7 +194,7 @@ stg authz check 8.8.8.8        # → FORA DO ESCOPO
 Toda execucao gera um registro em `stg-data/audit.jsonl`:
 
 ```json
-{"timestamp":"2026-06-16T12:00:00Z","user":"adauam","host":"kali","event":"scan",
+{"timestamp":"2026-06-16T12:00:00Z","user":"feistler","host":"kali","event":"scan",
  "connector":"nmap","target":"192.168.56.10","authorized":true,"forced":false,"status":"success"}
 ```
 
