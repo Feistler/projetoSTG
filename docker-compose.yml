@@ -7,8 +7,9 @@ services:
     build: .
     image: stg-toolkit:latest
     entrypoint: ["stg-web"]
+    # Liga apenas ao loopback do host: o scanner NAO deve ficar exposto na rede.
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     cap_add:
       - NET_ADMIN
       - NET_RAW

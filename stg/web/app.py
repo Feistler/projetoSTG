@@ -40,7 +40,6 @@ class ScanRequest(BaseModel):
     connector: str
     target: str
     options: dict[str, Any] = {}
-    force: bool = False
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -105,7 +104,9 @@ def scope() -> dict[str, Any]:
 def scan(req: ScanRequest) -> dict[str, Any]:
     runner = Runner(settings)
     try:
-        result = runner.run(req.connector, req.target, req.options, force=req.force)
+        # 'force' (bypass do escopo autorizado) e proibido via web por seguranca:
+        # so e permitido pela CLI, onde o operador assume o risco conscientemente.
+        result = runner.run(req.connector, req.target, req.options, force=False)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     rid = uuid.uuid4().hex[:12]

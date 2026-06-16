@@ -38,6 +38,18 @@ class Runner:
     ) -> ScanResult:
         connector = self.registry.build(connector_name, self.settings)
         target = Target.parse(target_value)
+
+        # Anti-injecao de argumento: um alvo iniciado com '-' viraria uma flag
+        # para a ferramenta (ex.: nmap -oN /etc/x). Recusa antes de executar.
+        if target.value.startswith("-"):
+            return ScanResult(
+                connector=connector_name,
+                category=connector.category,
+                target=target.value,
+                status=ScanStatus.SKIPPED,
+                error="Alvo invalido: nao pode comecar com '-'.",
+            )
+
         authorized = self.authz.is_authorized(target)
         needs_authz = not connector.passive
 

@@ -9,11 +9,15 @@ from typing import Any
 from stg.core.connector import CommandConnector
 from stg.core.models import Category, Finding, Severity, Target, TargetType
 
-# Servicos historicamente sensiveis quando expostos -> elevam a severidade.
+# Servicos sensiveis quando expostos -> elevam a severidade (LOW).
 RISKY_SERVICES = {
-    "telnet", "ftp", "rlogin", "rexec", "rsh", "vnc", "smb", "microsoft-ds",
-    "ms-sql-s", "mysql", "postgresql", "rdp", "ms-wbt-server", "redis",
-    "mongodb", "memcached", "elasticsearch", "snmp",
+    "telnet", "ftp", "rlogin", "rexec", "rsh", "ms-sql-s", "mysql",
+    "postgresql", "snmp",
+}
+# Servicos de altissimo risco quando expostos (acesso remoto / dados sem auth) -> MEDIUM.
+RISKY_MEDIUM = {
+    "vnc", "smb", "microsoft-ds", "rdp", "ms-wbt-server", "redis",
+    "mongodb", "memcached", "elasticsearch",
 }
 
 
@@ -80,7 +84,13 @@ class NmapConnector(CommandConnector):
                     self.make_finding(
                         title=f"Porta aberta {portid}/{proto} - {service}",
                         target=target,
-                        severity=Severity.LOW if service in RISKY_SERVICES else Severity.INFO,
+                        severity=(
+                            Severity.MEDIUM
+                            if service in RISKY_MEDIUM
+                            else Severity.LOW
+                            if service in RISKY_SERVICES
+                            else Severity.INFO
+                        ),
                         description=desc,
                         metadata={
                             "ip": host_ip,
