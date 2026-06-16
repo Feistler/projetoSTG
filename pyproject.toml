@@ -23,10 +23,18 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Painel web (FastAPI + dashboard).
+web = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
     "ruff>=0.3.0",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
 ]
 # Integracoes que dependem de bibliotecas pesadas/opcionais.
 integrations = [
@@ -36,6 +44,7 @@ integrations = [
 
 [project.scripts]
 stg = "stg.cli:main"
+stg-web = "stg.web.app:run"
 
 [project.urls]
 Homepage = "https://github.com/Feistler/projetoSTG"
@@ -46,6 +55,7 @@ include = ["stg*"]
 
 [tool.setuptools.package-data]
 "stg.reporting" = ["templates/*.j2"]
+"stg.web" = ["static/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

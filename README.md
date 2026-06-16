@@ -122,6 +122,19 @@ Pontos-chave do design:
 - 🐳 **Tudo em Docker** &mdash; imagem Kali com as ferramentas open source ja instaladas.
 - ✅ **Testado** &mdash; suite de testes do nucleo e dos parsers (27 testes).
 
+## Painel web (dashboard)
+
+Além da CLI, o STG tem um **painel web** (FastAPI) para operar tudo pelo navegador:
+escolher a ferramenta, lançar o scan, ver os achados por severidade e baixar o
+relatório. Reaproveita 100% do mesmo motor.
+
+```bash
+docker compose up dashboard       # depois abra http://localhost:8000
+```
+
+> O painel sobe em `localhost` de propósito: um scanner ativo **não** deve ficar
+> exposto na internet.
+
 ## Instalacao
 
 ### Opcao recomendada: Docker (multiplataforma)
@@ -258,7 +271,7 @@ projetoSTG/
 
 ## Roadmap
 
-- [ ] Dashboard web (FastAPI) reaproveitando o mesmo nucleo.
+- [x] Dashboard web (FastAPI) reaproveitando o mesmo nucleo.
 - [ ] Exportacao de relatorio em PDF.
 - [ ] Normalizacao de severidade por CVSS quando disponivel.
 - [ ] Mais conectores (Subfinder, httpx, trivy, Nuclei).

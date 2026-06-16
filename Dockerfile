@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /opt/stg
 COPY pyproject.toml README.md ./
 COPY stg ./stg
-RUN pip3 install --no-cache-dir --break-system-packages .
+RUN pip3 install --no-cache-dir --break-system-packages ".[web]"
 
 # O nmap do Kali tem file-capabilities (cap_net_admin=eip). Como NET_ADMIN nao
 # faz parte do conjunto padrao do Docker, o exec falharia com "Operation not

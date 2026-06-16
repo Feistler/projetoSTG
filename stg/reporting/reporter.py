@@ -69,6 +69,14 @@ def _render(results: Sequence[ScanResult], fmt: str) -> str:
     return template.render(**build_context(results))
 
 
+def render_report(results: Sequence[ScanResult], fmt: str) -> str:
+    """Renderiza o relatorio como string (html, md ou json) - usado pela API web."""
+    if fmt == "json":
+        payload = [r.model_dump(mode="json") for r in results]
+        return json.dumps(payload, ensure_ascii=False, indent=2)
+    return _render(results, fmt)
+
+
 def _to_json(results: Sequence[ScanResult], path: Path) -> None:
     payload = [r.model_dump(mode="json") for r in results]
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -1,7 +1,25 @@
-# Uso: docker compose run --rm stg <comando>
-# Ex.: docker compose run --rm stg list
-#      docker compose run --rm stg scan nmap 192.168.56.10 --report html
+# Painel web:  docker compose up dashboard   -> http://localhost:8000
+# CLI:         docker compose run --rm stg list
+#              docker compose run --rm stg scan nmap 192.168.56.10 --report html
 services:
+  # Painel web (FastAPI) - a forma "software" de operar o STG.
+  dashboard:
+    build: .
+    image: stg-toolkit:latest
+    entrypoint: ["stg-web"]
+    ports:
+      - "8000:8000"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./config:/data/config
+      - ./pipelines:/data/pipelines:ro
+      - ./stg-data:/data/stg-data
+
   stg:
     build: .
     image: stg-toolkit:latest
