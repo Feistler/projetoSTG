@@ -1,0 +1,17 @@
+# Uso: docker compose run --rm stg <comando>
+# Ex.: docker compose run --rm stg list
+#      docker compose run --rm stg scan nmap 192.168.56.10 --report html
+services:
+  stg:
+    build: .
+    image: stg-toolkit:latest
+    # Carrega o .env se existir (requer Docker Compose v2.24+).
+    env_file:
+      - path: .env
+        required: false
+    volumes:
+      - ./config:/data/config
+      - ./pipelines:/data/pipelines:ro
+      - ./stg-data:/data/stg-data
+    # Varreduras de rede reais (nmap/suricata) precisam de host networking (Linux):
+    # network_mode: host

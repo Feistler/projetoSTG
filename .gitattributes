@@ -1,0 +1,15 @@
+# Normaliza finais de linha (o projeto roda em Linux/Docker).
+* text=auto eol=lf
+
+*.py   text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.j2   text eol=lf
+*.toml text eol=lf
+Dockerfile text eol=lf
+Makefile   text eol=lf
+
+*.png binary
+*.jpg binary
+*.pcap binary

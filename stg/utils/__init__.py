@@ -1,0 +1,1 @@
+"""Utilidades transversais (shell, logging)."""

@@ -1,0 +1,16 @@
+# =============================================================================
+# Escopo autorizado (Rules of Engagement).
+# Liste APENAS redes/dominios para os quais ha autorizacao POR ESCRITO.
+# Conectores ATIVOS sao bloqueados para alvos fora deste escopo (use --force
+# para sobrepor, o que fica registrado na trilha de auditoria).
+# =============================================================================
+
+allow_local_files: true
+
+scope:
+  networks:
+    - 192.168.56.0/24      # ex.: laboratorio interno
+    - 10.0.0.0/24
+  domains:
+    - exemplo.local
+    - lab.interno

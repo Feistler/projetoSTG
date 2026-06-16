@@ -1,0 +1,11 @@
+name: recon-basico
+description: Descoberta de subdominios e varredura de portas/servicos.
+# Alvo informado via: stg pipeline pipelines/recon.yaml --target exemplo.local
+steps:
+  - connector: amass
+    options:
+      passive: true
+  - connector: nmap
+    options:
+      top_ports: 1000
+      timing: 4

@@ -1,0 +1,19 @@
+name: avaliacao-completa
+description: Recon + portas + varredura web + vulnerabilidades (alvos por etapa).
+# Cada etapa tem seu proprio alvo, pois ferramentas web usam URL e o nmap usa host.
+steps:
+  - connector: amass
+    target: exemplo.local
+    options:
+      passive: true
+  - connector: nmap
+    target: exemplo.local
+    options:
+      service_detection: true
+  - connector: nikto
+    target: http://exemplo.local
+  - connector: zap
+    target: http://exemplo.local
+    options:
+      active: true
+      max_wait: 600

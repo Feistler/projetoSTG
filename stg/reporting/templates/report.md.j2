@@ -1,0 +1,33 @@
+# Relatorio STG - Security Toolkit Gateway
+
+> Gerado em **{{ generated_at }}** &middot; engine v{{ version }}
+
+## Resumo executivo
+
+Total de achados: **{{ total }}**
+
+| Severidade | Quantidade |
+|------------|-----------:|
+{% for s in severity_order %}| {{ s | upper }} | {{ overall[s] }} |
+{% endfor %}
+
+## Resultados por ferramenta
+{% for b in blocks %}
+### {{ b.connector }} &middot; _{{ b.category }}_
+
+- **Alvo:** `{{ b.target }}`
+- **Status:** {{ b.status }}{% if b.error %} ({{ b.error }}){% endif %}
+{% if b.duration %}- **Duracao:** {{ '%.1f' | format(b.duration) }}s
+{% endif %}
+{% if b.findings %}
+| Severidade | Achado |
+|------------|--------|
+{% for f in b.findings %}| {{ f.severity.value | upper }} | {{ f.title }} |
+{% endfor %}
+{% else %}
+_Sem achados._
+{% endif %}
+{% endfor %}
+
+---
+_Relatorio gerado automaticamente pelo STG. Uso restrito a alvos autorizados._

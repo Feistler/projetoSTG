@@ -1,0 +1,19 @@
+# =============================================================================
+# STG - configuracao principal. Copie para config/config.yaml e ajuste.
+# Segredos (chaves de API) devem ficar no .env, NAO aqui.
+# =============================================================================
+
+paths:
+  data_dir: stg-data
+  output_dir: stg-data/output
+  audit_log: stg-data/audit.jsonl
+  authorization: config/authorization.yaml
+
+# Fallback de segredos (prefira o .env). Ex.: SHODAN_API_KEY: "xxxx"
+secrets: {}
+
+# Padroes opcionais por conector (consumiveis via settings.get no futuro).
+defaults:
+  nmap:
+    top_ports: 1000
+    timing: 4

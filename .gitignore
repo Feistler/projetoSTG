@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# STG runtime data (NUNCA versionar resultados/escopo reais)
+stg-data/
+*.log
+audit.jsonl
+
+# Segredos
+.env
+config/config.yaml
+config/authorization.yaml
+*.pem
+*.key
+
+# Saidas de ferramentas
+*.pcap
+*.xml.tmp
+reports/*.html
+reports/*.pdf
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Claude Code (configuracao local da maquina)
+.claude/settings.local.json
+
+# Testes
+.pytest_cache/
+.coverage
+htmlcov/
