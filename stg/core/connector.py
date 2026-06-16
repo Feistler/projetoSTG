@@ -150,8 +150,14 @@ class CommandConnector(BaseConnector):
             command = self.build_command(target, options, workdir)
             cmd_result = shell.run(command, timeout=timeout)
             raw = self.collect_output(cmd_result, workdir)
-            if not raw and not cmd_result.ok and cmd_result.stderr:
-                raw = cmd_result.stderr
+            if not (raw or "").strip():
+                # Nada coletado: se o processo falhou de fato, propaga o erro
+                # (vira FAILED) em vez de fingir sucesso com zero achados.
+                if cmd_result.timed_out:
+                    raise RuntimeError(f"timeout apos {timeout}s")
+                if not cmd_result.ok:
+                    detail = (cmd_result.stderr or cmd_result.stdout or "").strip()
+                    raise RuntimeError(detail or f"comando falhou (rc={cmd_result.returncode})")
             return raw, cmd_result.command_str
         finally:
             shutil.rmtree(workdir, ignore_errors=True)

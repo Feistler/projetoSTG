@@ -9,6 +9,10 @@ services:
     env_file:
       - path: .env
         required: false
+    # Capabilities para recursos avancados de rede (nmap, captura ao vivo).
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     volumes:
       - ./config:/data/config
       - ./pipelines:/data/pipelines:ro
