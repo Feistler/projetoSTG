@@ -15,7 +15,7 @@ client = TestClient(app)
 def test_index_served():
     resp = client.get("/")
     assert resp.status_code == 200
-    assert "Security Toolkit Gateway" in resp.text
+    assert "Fantase" in resp.text
 
 
 def test_connectors_endpoint_lists_18():

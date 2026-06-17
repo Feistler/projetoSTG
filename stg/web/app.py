@@ -31,7 +31,7 @@ from stg.web.content import CATEGORY_GUIDE, TOOL_TIPS
 STATIC_DIR = Path(__file__).parent / "static"
 _MEDIA = {"html": "text/html", "md": "text/markdown", "json": "application/json"}
 
-app = FastAPI(title="STG - Security Toolkit Gateway", version=__version__)
+app = FastAPI(title="Operação Fantase", version=__version__)
 settings = Settings.load()
 _results: dict[str, ScanResult] = {}
 

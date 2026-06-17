@@ -19,7 +19,7 @@ from stg.core.registry import get_registry
 from stg.core.runner import Runner
 from stg.reporting import generate_report
 
-app = typer.Typer(add_completion=False, help="STG - Security Toolkit Gateway")
+app = typer.Typer(add_completion=False, help="Operação Fantase - toolkit unificado de seguranca")
 authz_app = typer.Typer(help="Gestao do escopo autorizado (Rules of Engagement).")
 app.add_typer(authz_app, name="authz")
 console = Console()
@@ -112,7 +112,7 @@ def _maybe_report(
 @app.command()
 def version() -> None:
     """Mostra a versao do STG."""
-    console.print(f"[bold]STG - Security Toolkit Gateway[/] v{__version__}")
+    console.print(f"[bold]Operação Fantase[/] v{__version__}  [dim](engine STG)[/]")
 
 
 @app.command("list")

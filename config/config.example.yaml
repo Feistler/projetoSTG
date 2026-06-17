@@ -1,5 +1,5 @@
 # =============================================================================
-# STG - configuracao principal. Copie para config/config.yaml e ajuste.
+# Operação Fantase - configuracao principal. Copie para config/config.yaml e ajuste.
 # Segredos (chaves de API) devem ficar no .env, NAO aqui.
 # =============================================================================
 

@@ -1,5 +1,5 @@
 # =============================================================================
-# STG - imagem baseada em Kali Rolling com as ferramentas open source pre-
+# Operação Fantase - imagem baseada em Kali Rolling com as ferramentas open source pre-
 # instaladas. Ferramentas comerciais (Nessus, Burp, Splunk, CrowdStrike) sao
 # integradas via API e nao precisam estar na imagem.
 # =============================================================================

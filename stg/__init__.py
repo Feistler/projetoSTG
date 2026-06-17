@@ -1,4 +1,4 @@
-"""STG - Security Toolkit Gateway.
+"""Operação Fantase - Security Toolkit Gateway (engine: STG).
 
 Orquestrador modular que unifica ferramentas de seguranca ofensiva (Red Team)
 e defensiva (Blue Team) sob uma unica interface, normalizando resultados em um

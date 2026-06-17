@@ -1,4 +1,5 @@
-<h1 align="center">STG &middot; Security Toolkit Gateway</h1>
+<h1 align="center">Operação Fantase</h1>
+<p align="center"><sub>núcleo de operações de segurança &middot; engine <code>stg</code></sub></p>
 
 <p align="center">
   <em>Orquestrador unificado de ferramentas de seguranca ofensiva e defensiva.</em><br>

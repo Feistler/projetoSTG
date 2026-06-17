@@ -49,5 +49,5 @@ def test_json_is_valid(tmp_path):
 def test_html_contains_branding(tmp_path):
     paths = generate_report(_sample_results(), tmp_path, formats=("html",))
     html = paths["html"].read_text(encoding="utf-8")
-    assert "Security Toolkit Gateway" in html
+    assert "Fantase" in html
     assert "SQL Injection" in html
